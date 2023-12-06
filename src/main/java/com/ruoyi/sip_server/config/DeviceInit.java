@@ -1,5 +1,6 @@
 package com.ruoyi.sip_server.config;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.ruoyi.config.FileConfig;
 import com.ruoyi.domain.Device;
 import com.ruoyi.domain.DeviceChannel;
@@ -151,32 +152,40 @@ public class DeviceInit {
 
 
         new Thread(() -> {
+            while (true) {
+                try {
+                    System.err.println("开始推流");
+                    System.err.println("ffmpeg 推流命令: " + finalFfmpegCommand);
+                    // 创建ProcessBuilder对象，并传入FFmpeg命令
+                    ProcessBuilder processBuilder = new ProcessBuilder(finalFfmpegCommand.split(" "));
 
-            try {
-                System.err.println("开始推流");
-                System.err.println("ffmpeg 推流命令: " + finalFfmpegCommand);
-                // 创建ProcessBuilder对象，并传入FFmpeg命令
-                ProcessBuilder processBuilder = new ProcessBuilder(finalFfmpegCommand.split(" "));
+                    // 设置输出流和错误流合并
+                    processBuilder.redirectErrorStream(true);
 
-                // 设置输出流和错误流合并
-                processBuilder.redirectErrorStream(true);
+                    // 启动进程
+                    Process process = processBuilder.start();
 
-                // 启动进程
-                Process process = processBuilder.start();
+                    // 读取FFmpeg输出
+                    InputStream inputStream = process.getInputStream();
+                    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+                    String output = scanner.hasNext() ? scanner.next() : "";
 
-                // 读取FFmpeg输出
-                InputStream inputStream = process.getInputStream();
-                Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-                String output = scanner.hasNext() ? scanner.next() : "";
+                    // 等待进程执行完成
+                    // int exitCode = process.waitFor();
 
-                // 等待进程执行完成
-                // int exitCode = process.waitFor();
-
-                // 打印FFmpeg输出和退出码
-                System.out.println("FFmpeg output:\n" + output);
-                // System.out.println("Exit code: " + exitCode);
-            } catch (Exception e) {
-                e.printStackTrace();
+                    // 打印FFmpeg输出和退出码
+                    System.out.println("FFmpeg output:\n" + output);
+                    // System.out.println("Exit code: " + exitCode);
+                    if (output.contains("Unknown error")) {
+                        log.warn("推流失败，等待5秒钟后重试...");
+                        ThreadUtil.sleep(5000);
+                        continue;
+                    }
+                    System.err.println("推流结束");
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
 
