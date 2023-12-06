@@ -1,6 +1,5 @@
 package com.ruoyi.media.config;
 
-import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.domain.ZLMediaKit;
 import com.ruoyi.sip_server.config.SipConfig;
 import com.ruoyi.utils.ZLMediaKitHttpUtil;
@@ -10,7 +9,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
 /**
  * 默认ZLM初始化
@@ -538,8 +536,8 @@ public class ZLMediaKitConfig {
     private String rtpProxyTimeoutSec;
 
     /**
-     * #随机端口范围，最少确保36个端口
-     * #该范围同时限制rtsp服务器udp端口范围
+     * 随机端口范围，最少确保36个端口
+     * 该范围同时限制rtsp服务器udp端口范围
      */
     private String rtpProxyPortRange= "30000-35000";
 
@@ -646,13 +644,16 @@ public class ZLMediaKitConfig {
      * ffmpeg 推流命令, 有这个就不再需要拉流地址了
      */
     private String ffmpegCommand;
+
     /**
      * 开启关闭流媒体
      */
     private String enabled;
 
-
-
+    /**
+     * 设备初始化和设备销毁时是否需要重置zlm
+     */
+    private boolean reset = true;
 
 
     private ZLMediaKit defaultZLMediaKit;
@@ -668,38 +669,9 @@ public class ZLMediaKitConfig {
         if (defaultZLMediaKit != null) {
             return this.defaultZLMediaKit;
         }
-
         ZLMediaKit zlm = new ZLMediaKit();
         // 拷贝属性
         BeanUtils.copyProperties(this, zlm);
-        // 设置信令服务器ip
-        zlm.setHookIp(StringUtils.hasText(this.getHookIp()) ? this.getHookIp() : sipConfig.getIp());
-        zlm.setHookPort(StringUtils.hasText(this.getHookPort()) ? this.getHookPort() : sipConfig.getHttpPort().toString());
-        zlm.setHttpStreamIp(StringUtils.hasText(this.getHttpStreamIp()) ? this.httpStreamIp : this.httpIp);
-
-
-        if("1".equals(zlm.getEnabled())){
-            // 设置流媒体服务器
-            JSONObject object = kitHttpUtil.setZLMediaKitConfig(zlm);
-            System.out.println(object);
-            // 重启流媒体
-            boolean restart = kitHttpUtil.restart(zlm);
-        }
-       /* // 设置 ffmpeg
-        zlm.setFfmpegCmd("%s -fflags nobuffer -i %s -c:a aac -strict -2 -ar 44100 -ab 48k -c:v libx264  -f flv %s");
-        // 设置心跳方法
-        zlm.setHookOnServerKeepalive(setHookApi("%s%s:%s/zlmediakit/zlm-keepalive", zlm));
-        // 流未找到事件,实现固定地址自动拉流
-        zlm.setHookOnStreamNotFound(setHookApi("%s%s:%s/zlmediakit/auto-pull-stream", zlm));
-        // 流注册或者注销事件
-        zlm.setHookOnStreamChanged(setHookApi("%s%s:%s/zlmediakit/register-or-logout", zlm));
-        // 无人观看流事件
-        zlm.setHookOnStreamNoneReader(setHookApi("%s%s:%s/zlmediakit/unmanned-read", zlm));
-        // 流媒体服务器启动事件
-        zlm.setHookOnServerStarted(setHookApi("%s%s:%s/zlmediakit/zlm-start-up", zlm));
-        // 推流鉴权事件
-        zlm.setHookOnPublish(setHookApi("%s%s:%s/zlmediakit/publish-stream-auth", zlm));*/
-
         this.defaultZLMediaKit = zlm;
         return this.defaultZLMediaKit;
     }
@@ -713,6 +685,4 @@ public class ZLMediaKitConfig {
     public String setHookApi(String url, ZLMediaKit zlm) {
         return String.format(url, kitHttpUtil.isHttps(sipConfig.isHttps()), zlm.getHookIp(), zlm.getHookPort());
     }
-
-
 }

@@ -76,7 +76,6 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
             String callId =  callIdHeader.getCallId();
 
             log.info("目标SDP内容: \r\n{}", request);
-            // 获取设备id [form也是通道id,我直接改34了]
             String fromUri = event.getRequest().getHeader(To.NAME).toString();
             String channelId = fromUri.substring(fromUri.indexOf(":") + 1, fromUri.indexOf("@")).split(":")[1];
             String deviceId = channelId;

@@ -43,7 +43,7 @@ public class DeviceInit {
     private GB28181Controller controller;
 
     @Autowired
-    private EventPublisher eventPublisher;
+    private ZLMediaKitConfig zlMediaKitConfig;
 
     /**
      * 所有设备
@@ -57,9 +57,11 @@ public class DeviceInit {
         log.info("\n=========设备初始化=========");
         ds = new ConcurrentHashMap<>(sipConfig.getDeviceSize());
         // 关闭所有流
-        httpUtil.closeStreams(null, null, null, null, null, "1");
-
-        int port = 40200;
+        if (zlMediaKitConfig.isReset()) {
+            httpUtil.closeStreams(null, null, null, null, null, "1");
+        }
+        String[] split = zlMediaKitConfig.getRtpProxyPortRange().split("-");
+        int portBegin = Integer.parseInt(split[0]);
         // 创建设备
         for (int i = 0; i < sipConfig.getDeviceSize(); i++) {
             Device d = new Device();
@@ -69,7 +71,7 @@ public class DeviceInit {
             d.setDevicePort(sipConfig.getSipDevicePort());
             // 设置流媒体推流ip端口
             d.setZlmIp(zlm.getHttpIp());
-            d.setZlmPort(port++);
+            d.setZlmPort(portBegin++);
             d.setCharset("GB2312");
             d.setRegisterProtocol("UDP");
             d.setStreamProtocol("UDP");
@@ -176,7 +178,9 @@ public class DeviceInit {
     public void destroy() {
         log.info("\n=========设备销毁=========");
         // 关闭所有流
-        httpUtil.closeStreams(null, null, null, null, null, "1");
+        if (zlMediaKitConfig.isReset()) {
+            httpUtil.closeStreams(null, null, null, null, null, "1");
+        }
     }
 
 
@@ -190,6 +194,5 @@ public class DeviceInit {
             ds.values().stream().filter(x->!x.isRegister()).forEach(x->eventPublisher.eventPush(new SipRegisterEvent(x,true)));
         }
     }*/
-
 
 }
