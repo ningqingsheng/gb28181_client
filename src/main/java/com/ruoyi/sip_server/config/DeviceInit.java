@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,48 +59,24 @@ public class DeviceInit {
         // 关闭所有流
         httpUtil.closeStreams(null, null, null, null, null, "1");
 
-
-        Device d = null;
-        int sum = 1;
         int port = 40200;
-
         // 创建设备
-        for (int i = 0; i < sipConfig.getDeviceSize(); i++, sum++, port++) {
-            // 前面自动补 0
-            String sumSize = null;
-            String length = String.valueOf(sum);
-            switch (length.length()) {
-                case 1:
-                    sumSize = "0000" + sum;
-                    break;
-                case 2:
-                    sumSize = "000" + sum;
-                    break;
-                case 3:
-                    sumSize = "00" + sum;
-                    break;
-                case 4:
-                    sumSize = "0" + sum;
-                    break;
-                default:
-                    sumSize = sum + "";
-            }
-
-            d = new Device();
-            d.setDeviceId("340200000013200" + sumSize);
+        for (int i = 0; i < sipConfig.getDeviceSize(); i++) {
+            Device d = new Device();
+            d.setDeviceId(new BigInteger(sipConfig.getGbCodeBegin()).add(BigInteger.valueOf(i)).toString());
             d.setDeviceName((i + 1) + "-设备");
             d.setDeviceIp(sipConfig.getSipDeviceIp());
             d.setDevicePort(sipConfig.getSipDevicePort());
             // 设置流媒体推流ip端口
             d.setZlmIp(zlm.getHttpIp());
-            d.setZlmPort(port);
+            d.setZlmPort(port++);
             d.setCharset("GB2312");
             d.setRegisterProtocol("UDP");
             d.setStreamProtocol("UDP");
 
             DeviceChannel c = new DeviceChannel();
             c.setParentId(d.getDeviceId());
-            c.setChannelId("38" + d.getDeviceId().substring(2));
+            c.setChannelId(d.getDeviceId());
             c.setChannelName((i + 1) + "-通道");
             d.setChannel(c);
             ds.put(d.getDeviceId(), d);

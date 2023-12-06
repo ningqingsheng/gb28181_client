@@ -61,6 +61,10 @@ public class SipConfig {
      * 模拟设备数量,端口默认50000开始
      */
     private Integer deviceSize;
+    /**
+     * 设备国标编码起始编号
+     */
+    private String gbCodeBegin = "44130200022000000001";
 
 
     /**
