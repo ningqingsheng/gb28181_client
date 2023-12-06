@@ -118,11 +118,15 @@ public class DeviceInit {
             if (StringUtils.hasText(ffmpegCommand)) {
                 ffmpegPush(ffmpegCommand);
             } else {
-                boolean b = httpUtil.playPullStrean(null);
-                if (!b) {
-                    log.error("流媒体拉流异常");
-                }else {
-                    System.err.println("流媒体拉基础流成功");
+                while (true) {
+                    boolean b = httpUtil.playPullStrean(null);
+                    if (!b) {
+                        log.error("流媒体拉流异常，5秒后重试...");
+                        ThreadUtil.sleep(5000);
+                    } else {
+                        System.err.println("流媒体拉基础流成功");
+                        break;
+                    }
                 }
             }
         }

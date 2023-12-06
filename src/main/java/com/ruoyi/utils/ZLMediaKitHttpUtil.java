@@ -581,8 +581,7 @@ public class ZLMediaKitHttpUtil {
             }
             log.error("\n拉流执行错误:[{}][{}][{}]", zlm.getGeneralMediaServerId(), zlm.getPullStreamId(), msg);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("\n拉流执行异常:[{}][{}][{}]", zlm.getGeneralMediaServerId(), zlm.getPullStreamId(), e);
+            log.error("\n拉流执行异常:[{}][{}][{}]", zlm.getGeneralMediaServerId(), zlm.getPullStreamId(), e.getMessage());
         }
         return false;
     }
