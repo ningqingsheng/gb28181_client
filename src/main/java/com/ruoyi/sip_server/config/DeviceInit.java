@@ -176,7 +176,7 @@ public class DeviceInit {
                     // 打印FFmpeg输出和退出码
                     System.out.println("FFmpeg output:\n" + output);
                     // System.out.println("Exit code: " + exitCode);
-                    if (output.contains("Unknown error")) {
+                    if (output.contains("Unknown error") || output.contains("Conversion failed!")) {
                         log.warn("推流失败，等待5秒钟后重试...");
                         ThreadUtil.sleep(5000);
                         continue;
