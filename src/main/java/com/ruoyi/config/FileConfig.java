@@ -65,18 +65,20 @@ public class FileConfig {
             }
         }
 
-        InputStream in = ResourceUtil.getStream("ffmpeg/input.mp4");
-        try {
-            FileOutputStream out = new FileOutputStream(mp4File);
-            IoUtil.copy(in, out);
-            in.close();
-            out.close();
-            System.out.println("拷贝: ffmpeg/input.mp4");
-            File file = new File(mp4File);
-            file.setReadable(true);
-            file.setWritable(true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        File file = new File(mp4File);
+        if (!file.exists()) {
+            InputStream in = ResourceUtil.getStream("ffmpeg/input.mp4");
+            try {
+                FileOutputStream out = new FileOutputStream(mp4File);
+                IoUtil.copy(in, out);
+                in.close();
+                out.close();
+                System.out.println("拷贝: ffmpeg/input.mp4");
+                file.setReadable(true);
+                file.setWritable(true);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         FileUtils.setChmod777(servFile.toString());
