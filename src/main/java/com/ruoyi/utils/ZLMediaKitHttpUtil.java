@@ -426,7 +426,7 @@ public class ZLMediaKitHttpUtil {
      * @param ip 目标ip
      * @param port 本地端口
      * @param toPort 目标端口
-     * @param isTcp 是否是TCP
+     * @param isUdp 是否是UDP
      * @return
      */
     public boolean pushStreamGB(ZLMediaKit zlm, String ssrc, String ip, Integer port, String toPort, boolean isUdp) {
@@ -524,7 +524,7 @@ public class ZLMediaKitHttpUtil {
      * @param zlm   流媒体服务器对象
      * @return
      */
-    public boolean playPullStrean(ZLMediaKit zlm) {
+    public boolean playPullStream(ZLMediaKit zlm) {
         if (zlm==null){
             zlm = zlMediaKitConfig.getDefaultZLMediaKit();
         }

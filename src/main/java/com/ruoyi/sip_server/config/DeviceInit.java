@@ -96,7 +96,7 @@ public class DeviceInit {
                 ffmpegPush(ffmpegCommand);
             } else {
                 while (true) {
-                    boolean b = httpUtil.playPullStrean(null);
+                    boolean b = httpUtil.playPullStream(null);
                     if (!b) {
                         log.error("流媒体拉流异常，5秒后重试...");
                         ThreadUtil.sleep(5000);
