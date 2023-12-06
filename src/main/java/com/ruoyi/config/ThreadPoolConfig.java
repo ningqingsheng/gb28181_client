@@ -30,11 +30,11 @@ public class ThreadPoolConfig {
     /**
      * 最大线程数
      */
-    private  Integer maxPoolSize = 100;
+    private  Integer maxPoolSize = Integer.MAX_VALUE;
     /**
      * 队列容量
      */
-    private  Integer queueCapacity = Integer.MAX_VALUE;
+    private  Integer queueCapacity = 0;
     /**
      * 设置线程活跃时间（秒）
      */
@@ -43,7 +43,7 @@ public class ThreadPoolConfig {
     /**
      * 设置线程名称前缀
      */
-    private  String threadNamePrefix = "Client-";
+    private  String threadNamePrefix = "my-pool:";
     /**
      * 设置等待关闭时间 秒
      */
@@ -85,7 +85,7 @@ public class ThreadPoolConfig {
         executor.setCorePoolSize(corePoolSize);
         executor.setQueueCapacity(queueCapacity);
         executor.setKeepAliveSeconds(keepAliveSeconds);
-        executor.setThreadNamePrefix("my-pool:");
+        executor.setThreadNamePrefix(threadNamePrefix);
         // 线程池对拒绝任务(无线程可用)的处理策略
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         return executor;
