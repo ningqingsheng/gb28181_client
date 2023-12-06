@@ -36,7 +36,7 @@ public class SipAckEventExecute implements ApplicationListener<SipAckEvent> {
     private ZLMediaKitHttpUtil httpUtil;
 
     @Override
-    // @Async("my")
+    @Async("my")
     public void onApplicationEvent(SipAckEvent ackEvent) {
         ResponseEvent evt = ackEvent.getEvt();
         Response response = evt.getResponse();

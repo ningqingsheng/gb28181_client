@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -58,6 +59,7 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
 
 
     @Override
+    @Async("my")
     public void onApplicationEvent(SipMessageEvent evt) {
         RequestEvent event = evt.getEvt();
         Request request = event.getRequest();

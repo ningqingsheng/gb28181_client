@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -47,7 +48,7 @@ public class SipRecordInfoEventExecute implements ApplicationListener<SipRecordI
 
 
     @Override
-    // @Async("my")
+    @Async("my")
     public void onApplicationEvent(SipRecordInfoEvent recordInfo) {
         RequestEvent evt = recordInfo.getEvt();
         Request request = evt.getRequest();

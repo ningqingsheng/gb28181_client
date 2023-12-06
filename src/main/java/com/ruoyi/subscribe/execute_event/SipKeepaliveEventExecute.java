@@ -14,6 +14,7 @@ import gov.nist.javax.sip.header.From;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.sip.ResponseEvent;
@@ -62,7 +63,7 @@ public class SipKeepaliveEventExecute implements ApplicationListener<SipKeepaliv
 
 
     @Override
-    // @Async("my")
+    @Async("my")
     public void onApplicationEvent(SipKeepaliveEvent evt) {
         ResponseEvent event = evt.getEvt();
         Response response = event.getResponse();

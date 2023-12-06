@@ -15,6 +15,7 @@ import gov.nist.javax.sip.header.To;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.sip.RequestEvent;
@@ -66,7 +67,7 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
 
 
     @Override
-    // @Async("my")
+    @Async("my")
     public void onApplicationEvent(SipInviteEvent evt) {
         try {
             RequestEvent event = evt.getEvt();
@@ -78,7 +79,7 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
             // 获取设备id [form也是通道id,我直接改34了]
             String fromUri = event.getRequest().getHeader(To.NAME).toString();
             String channelId = fromUri.substring(fromUri.indexOf(":") + 1, fromUri.indexOf("@")).split(":")[1];
-            String deviceId = "34" + channelId.substring(2);
+            String deviceId = channelId;
             log.info("设备id: {}", deviceId);
             Device d = DeviceInit.ds.get(deviceId);
             if (d == null) {

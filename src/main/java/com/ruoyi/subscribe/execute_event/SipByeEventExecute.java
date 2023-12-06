@@ -8,6 +8,7 @@ import com.ruoyi.utils.ZLMediaKitHttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -34,7 +35,7 @@ public class SipByeEventExecute implements ApplicationListener<SipByeEvent> {
 
 
     @Override
-    // @Async("my")
+    @Async("my")
     public void onApplicationEvent(SipByeEvent byeEvent) {
         RequestEvent evt = byeEvent.getEvt();
         Request request = evt.getRequest();
