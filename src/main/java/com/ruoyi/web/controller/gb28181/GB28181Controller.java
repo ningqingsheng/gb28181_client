@@ -1,6 +1,10 @@
 package com.ruoyi.web.controller.gb28181;
 
 import cn.hutool.core.thread.ThreadUtil;
+import com.ruoyi.delayed_task.DelayQueueManager;
+import com.ruoyi.delayed_task.DelayTask;
+import com.ruoyi.domain.Device;
+import com.ruoyi.domain.base.Prefix;
 import com.ruoyi.domain.base.R;
 import com.ruoyi.media.config.ZLMediaKitConfig;
 import com.ruoyi.sip_server.config.DeviceInit;
@@ -42,6 +46,8 @@ public class GB28181Controller {
     private EventPublisher eventPublisher;
     @Autowired
     private SipConfig sipConfig;
+    @Autowired
+    private DelayQueueManager delayQueueManager;
 
 
     /**
@@ -53,8 +59,9 @@ public class GB28181Controller {
         if (type == 0) {
             // 注册
             DeviceInit.ds.values().forEach(x -> {
-                        eventPublisher.eventPush(new SipRegisterEvent(x));
-                        log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
+                        register(x);
+                        // 3600秒后自动重新注册
+                        delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), 3600 * 1000, () -> register(x)));
                         ThreadUtil.sleep(sipConfig.getRegisterInterval());
                     }
             );
@@ -69,5 +76,9 @@ public class GB28181Controller {
 
     }
 
+    private void register(Device x) {
+        eventPublisher.eventPush(new SipRegisterEvent(x));
+        log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
+    }
 
 }

@@ -14,6 +14,11 @@ public enum Prefix {
     keepalive("keepalive"),
 
     /**
+     * 定时注册
+     */
+    register("register"),
+
+    /**
      * 其他前缀[无所谓]
      */
     uuid("UUID"),
