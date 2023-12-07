@@ -108,7 +108,7 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
         log.info("设备id: {}", deviceId);
         Device d = DeviceInit.ds.get(deviceId);
         if (d == null) {
-            log.info("设备对象为空");
+            log.info("设备对象为空 {}",deviceId);
             return;
         }
 
@@ -117,14 +117,14 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
             //携带验证信息
             WWWAuthenticateHeader authorizationHeader = (WWWAuthenticateHeader) response.getHeader(WWWAuthenticateHeader.NAME);
             if (!d.isRegister()) {
-                log.info("向平台:{} 发送带认证信息的注册消息!");
+                log.info("{} 向平台发送带认证信息的注册消息!", deviceId);
                 // 发送注册
                 sipCmdUtil.sendRegister(d, authorizationHeader, callId);
                 new MyTest(d.getDeviceId(), "发送注册请求-带认证信息");
 
             } else {
                 // 此处还是注册, 注销另外接口, 不然注销一部分注册一部分,在执行会出现相反
-                log.info("向平台:{} 发送带认证信息的注销消息!");
+                log.info("{} 向平台发送带认证信息的注销消息!", deviceId);
                 // sipCmdUtil.unRegister(sipPlatform, device, callId, authorizationHeader, null);
                 sipCmdUtil.sendRegister(d, authorizationHeader, callId);
 
@@ -138,13 +138,12 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
             // 定时发送心跳
             manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> {
                 sipCmdUtil.sendKeepalive(d);
-                // log.info("发送心跳完成 {} {}",d.getDeviceId(),d.getDeviceName());
-
+                 log.info("发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
             }));
-            log.info("设备向平台:{} 注册成功!");
+            log.info("设备向平台:{} 注册成功!", deviceId);
 
         } else {
-            log.info("设备向平台:{} 注册失败!");
+            log.info("设备向平台:{} 注册失败!", deviceId);
             d.setRegister(false);
         }
     }
