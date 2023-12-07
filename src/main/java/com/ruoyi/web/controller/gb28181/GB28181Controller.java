@@ -5,6 +5,7 @@ import com.ruoyi.domain.base.R;
 import com.ruoyi.media.config.ZLMediaKitConfig;
 import com.ruoyi.sip_server.config.DeviceInit;
 import com.ruoyi.sip_server.config.SSRCConfig;
+import com.ruoyi.sip_server.config.SipConfig;
 import com.ruoyi.subscribe.EventPublisher;
 import com.ruoyi.subscribe.event.SipRegisterEvent;
 import com.ruoyi.utils.SipCmdUtil;
@@ -39,6 +40,8 @@ public class GB28181Controller {
 
     @Autowired
     private EventPublisher eventPublisher;
+    @Autowired
+    private SipConfig sipConfig;
 
 
     /**
@@ -51,8 +54,8 @@ public class GB28181Controller {
             // 注册
             DeviceInit.ds.values().forEach(x -> {
                         eventPublisher.eventPush(new SipRegisterEvent(x));
-                        ThreadUtil.sleep(1000);
                         log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
+                        ThreadUtil.sleep(sipConfig.getRegisterInterval());
                     }
             );
             DeviceInit.isRegister = true;

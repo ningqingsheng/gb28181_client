@@ -65,6 +65,10 @@ public class SipConfig {
      * 设备国标编码起始编号
      */
     private String gbCodeBegin = "44130200022000000001";
+    /**
+     * 注册间隔，毫秒
+     */
+    private Integer registerInterval = 500;
 
 
     /**
