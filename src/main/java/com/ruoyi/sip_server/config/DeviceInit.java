@@ -13,6 +13,7 @@ import com.ruoyi.utils.ZLMediaKitHttpUtil;
 import com.ruoyi.web.controller.gb28181.GB28181Controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -44,6 +45,9 @@ public class DeviceInit {
 
     @Autowired
     private ZLMediaKitConfig zlMediaKitConfig;
+
+    @Autowired
+    private TaskExecutor my;
 
     /**
      * 所有设备
@@ -111,7 +115,9 @@ public class DeviceInit {
         }
 
         // 注册
-        controller.cmd(0);
+        my.execute(()->{
+            controller.cmd(0);
+        });
     }
 
     /**

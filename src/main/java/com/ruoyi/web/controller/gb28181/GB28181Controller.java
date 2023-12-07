@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.gb28181;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.ruoyi.domain.base.R;
 import com.ruoyi.media.config.ZLMediaKitConfig;
 import com.ruoyi.sip_server.config.DeviceInit;
@@ -51,6 +52,7 @@ public class GB28181Controller {
             DeviceInit.ds.values().forEach(x -> {
                         log.info("设备数: {}", DeviceInit.ds.keySet().size());
                         eventPublisher.eventPush(new SipRegisterEvent(x));
+                        ThreadUtil.sleep(1000);
                         log.info("{} 发起注册", x.getDeviceName());
                     }
             );
