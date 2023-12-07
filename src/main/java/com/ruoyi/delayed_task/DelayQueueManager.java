@@ -1,8 +1,11 @@
 package com.ruoyi.delayed_task;
 
 import com.ruoyi.domain.base.Prefix;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -17,7 +20,8 @@ public class DelayQueueManager implements CommandLineRunner {
     private final DelayQueue<DelayTask> delayQueue = new DelayQueue<>();
     // 正在队列里的对象
     private final Map<String, DelayTask> saveDelay = new ConcurrentHashMap<>();
-
+    @Autowired
+    private AsyncTaskExecutor my;
 
     /**
      * 加入到延时队列中
@@ -67,24 +71,27 @@ public class DelayQueueManager implements CommandLineRunner {
      */
     @Override
     public void run(String... args) {
-        Executors.newSingleThreadExecutor().execute(new Thread(this::excuteThread));
+        Executors.newSingleThreadExecutor().execute(new Thread(this::executeThread));
     }
 
     /**
      * 延时任务执行线程
      */
-    private void excuteThread() {
+    @SneakyThrows
+    private void executeThread() {
         while (true) {
-            try {
-                DelayTask task = delayQueue.take();
-                //执行任务
-                task.getExecute().execute();
-                // 删除执行过的任务
-                saveDelay.remove(task.getId());
-            } catch (InterruptedException e) {
-                log.error("\n延时任务执行出错");
-                break;
-            }
+            DelayTask task = delayQueue.take();
+            my.execute(() -> {
+                try {
+                    //执行任务
+                    task.getExecute().execute();
+                } catch (Exception e) {
+                    log.error("延时任务执行出错", e);
+                } finally {
+                    // 删除执行过的任务
+                    saveDelay.remove(task.getId());
+                }
+            });
         }
     }
 
