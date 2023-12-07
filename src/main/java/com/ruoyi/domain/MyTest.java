@@ -27,7 +27,7 @@ public class MyTest implements Serializable {
     public MyTest(String deviceId, String type) {
         this.deviceId = deviceId;
         this.type = type;
-        this.http();
+        // this.http();
     }
 
     /**
