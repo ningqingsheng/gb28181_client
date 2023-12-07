@@ -70,7 +70,6 @@ public class SipCmdUtil {
      *
      * @param dcAddress 流id, 不传停止所有推流
      * @return
-     * @throws SipException
      */
     public Map<String, Boolean> sendBye(String dcAddress) {
         return null;
@@ -83,9 +82,6 @@ public class SipCmdUtil {
      * @param d      设备对象
      * @param www    认证信息
      * @param callId 会议id
-     * @throws ParseException
-     * @throws InvalidArgumentException
-     * @throws SipException
      */
     public void sendRegister(Device d, WWWAuthenticateHeader www, String callId) {
 
@@ -103,7 +99,7 @@ public class SipCmdUtil {
                 udpSipProvider.sendRequest(request);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
         }
     }
 
@@ -146,7 +142,7 @@ public class SipCmdUtil {
                 }
             }));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
         }
     }
 
@@ -169,7 +165,7 @@ public class SipCmdUtil {
                 Request req = sipUtil.createMessageRequest(device, deviceInfo, tm1/*fromHeader.getTag()*/,"z9hG4bK-"+tm2, callIdHeader);
                 udpSipProvider.sendRequest(req);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("", e);
             }
         } else {
             log.error("发送设备信息错误-设备对象: [{}], 请求对象: [{}]", device, request);
@@ -198,7 +194,7 @@ public class SipCmdUtil {
                 Request req = sipUtil.createMessageRequest(device, catalog, tm1,"z9hG4bK-"+tm2, callIdHeader);
                 udpSipProvider.sendRequest(req);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("", e);
             }
         } else {
             log.error("发送通道信息错误-设备对象: [{}], 请求对象: [{}]", device, request);
@@ -214,7 +210,7 @@ public class SipCmdUtil {
             Request request = sipUtil.createRegisterRequest(d, 1L, "From-Register" + tm, null, callIdHeader, 0);
             udpSipProvider.sendRequest(request);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
         }
     }
 }

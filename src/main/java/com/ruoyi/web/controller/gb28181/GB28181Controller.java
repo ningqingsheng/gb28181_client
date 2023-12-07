@@ -50,10 +50,9 @@ public class GB28181Controller {
         if (type == 0) {
             // 注册
             DeviceInit.ds.values().forEach(x -> {
-                        log.info("设备数: {}", DeviceInit.ds.keySet().size());
                         eventPublisher.eventPush(new SipRegisterEvent(x));
                         ThreadUtil.sleep(1000);
-                        log.info("{} 发起注册", x.getDeviceName());
+                        log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
                     }
             );
             DeviceInit.isRegister = true;

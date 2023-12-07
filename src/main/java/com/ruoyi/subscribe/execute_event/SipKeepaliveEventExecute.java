@@ -73,10 +73,9 @@ public class SipKeepaliveEventExecute implements ApplicationListener<SipKeepaliv
         // 获取设备id
         String uri = response.getHeader(From.NAME).toString();
         String deviceId = uri.substring(uri.indexOf(":") + 1, uri.indexOf("@")).split(":")[1];
-        log.info("设备id: {}", deviceId);
         Device d = DeviceInit.ds.get(deviceId);
         if (d == null) {
-            log.info("设备对象为空");
+            log.info("设备对象为空 {}", deviceId);
             return;
         }
 
@@ -91,12 +90,11 @@ public class SipKeepaliveEventExecute implements ApplicationListener<SipKeepaliv
 
         // 注册状态继续发送心跳
         if (d.isRegister()) {
-            log.info("继续心跳延时任务");
             // 定时发送心跳
             manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> {
                 sipCmdUtil.sendKeepalive(d);
-                log.info("注册状态发送心跳完成 {} {}",d.getDeviceId(),d.getDeviceName());
-                log.info("{} 未响应次数: {}", deviceId,keepalive.get(deviceId));
+                log.info("注册状态发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
+                log.info("{} 未响应次数: {}", deviceId, keepalive.get(deviceId));
             }));
         }
 

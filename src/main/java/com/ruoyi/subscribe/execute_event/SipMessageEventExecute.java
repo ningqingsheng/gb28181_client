@@ -75,15 +75,13 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
             String deviceId = XMLUtil.getString(json, "DeviceID");
 
             if (!StringUtils.hasText(deviceId)) {
-                log.info("\n设备id 为空, 结束执行....");
+                log.info("设备id 为空, 结束执行....");
                 return;
             }
-            Response response = null;
-
 
             // 更新设备信息
             if ("DeviceInfo".equalsIgnoreCase(cmd)) {
-                log.info("\n[{}]发送设备信息....", deviceId);
+                log.info("[{}]发送设备信息....", deviceId);
                 sipCmdUtil.sendDeviceInfo(event,deviceId,sn);
                 new MyTest(deviceId, "发送设备信息");
 
@@ -91,21 +89,20 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
 
             // 发送录像
             else if ("RecordInfo".equalsIgnoreCase(cmd)) {
-                log.info("\n[{}]发送录像信息....没实现", deviceId);
+                log.info("[{}]发送录像信息....没实现", deviceId);
 
             }
 
             //目录响应，保存到redis
             else if ("Catalog".equalsIgnoreCase(cmd)) {
-                log.info("\n[{}]发送通道信息....", deviceId);
+                log.info("[{}]发送通道信息....", deviceId);
                 sipCmdUtil.sendCatalog(event,deviceId,sn);
                 new MyTest(deviceId, "发送通道信息");
             }
             // 响应设备
-             sipUtil.response(event, response, Response.OK, null);
+             sipUtil.response(event, null, Response.OK, null);
         } catch (Exception err) {
-            log.error("\nMessageEvent事件处理错误: ", err);
-            err.printStackTrace();
+            log.error("MessageEvent事件处理错误: ", err);
         }
     }
 }

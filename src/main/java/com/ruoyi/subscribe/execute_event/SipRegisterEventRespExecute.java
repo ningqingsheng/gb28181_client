@@ -63,31 +63,21 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
         Response response = event.getResponse();
         ViaHeader via = (ViaHeader) response.getHeader("Via");
         int status = response.getStatusCode();
-        if (((status >= 200) && (status < 300)) || status == 401) { // Success!
-            if (status != 200) {
-                log.info("收到{}回复，\n{}", status, via.getHost() + ":" + via.getPort());
-            } else {
-                log.info("收到{}回复ip {}", status, via.getHost() + ":" + via.getPort());
-            }
+        if (((status >= 200) && (status < 300)) || status == 401) {
+            log.info("收到{}回复ip {}", status, via.getHost() + ":" + via.getPort());
             CSeqHeader cseqHeader = (CSeqHeader) event.getResponse().getHeader(CSeqHeader.NAME);
             String method = cseqHeader.getMethod();
             // 注册或者注销
             sendMsg(event);
-
-            if (status == 200) {
-                log.info("状态码为200");
-            }
         } else if ((status >= 100) && (status < 200)) {
             // 增加其它无需回复的响应，如101、180等
             log.info("增加其它无需回复的响应，如101、180等");
 
         } else {
             log.error("接收到失败的response响应！status：" + status + ",message:" + response.getReasonPhrase()/* .getContent().toString()*/);
-            if (response != null) {
-                CallIdHeader callIdHeader = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
-                if (callIdHeader != null) {
-                    log.error("注册失败{}", callIdHeader);
-                }
+            CallIdHeader callIdHeader = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
+            if (callIdHeader != null) {
+                log.error("注册失败{}", callIdHeader);
             }
             if (event.getDialog() != null) {
                 event.getDialog().delete();
@@ -105,10 +95,9 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
         // 获取设备id
         String uri = evt.getResponse().getHeader(From.NAME).toString();
         String deviceId = uri.substring(uri.indexOf(":") + 1, uri.indexOf("@")).split(":")[1];
-        log.info("设备id: {}", deviceId);
         Device d = DeviceInit.ds.get(deviceId);
         if (d == null) {
-            log.info("设备对象为空 {}",deviceId);
+            log.info("设备对象为空 {}", deviceId);
             return;
         }
 

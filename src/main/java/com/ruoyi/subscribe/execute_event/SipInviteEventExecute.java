@@ -79,10 +79,9 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
             String fromUri = event.getRequest().getHeader(To.NAME).toString();
             String channelId = fromUri.substring(fromUri.indexOf(":") + 1, fromUri.indexOf("@")).split(":")[1];
             String deviceId = channelId;
-            log.info("设备id: {}", deviceId);
             Device d = DeviceInit.ds.get(deviceId);
             if (d == null) {
-                log.info("设备对象为空");
+                log.info("设备对象为空 {}", deviceId);
                 return;
             }
 
@@ -111,12 +110,9 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
             }
             // 存入正在推流缓存
             pushStream.put(callId, ssrc);
+            log.info("推流成功：deviceId={}, channelId={}, ssrc={}, isUdp={}", deviceId, channelId, ssrc, !isTcp);
 
-            log.info("推流结果: {}", b);
-
-
-
-            StringBuffer content = new StringBuffer(200);
+            StringBuilder content = new StringBuilder(200);
             content.append("v=0\r\n");
             // content.append("o=" + channelId + " 0 0 IN IP4 " + d.getZlmIp() + "\r\n");
             content.append("o=" + spdId + " 0 0 IN IP4 " + d.getZlmIp() + "\r\n");
@@ -138,11 +134,8 @@ public class SipInviteEventExecute implements ApplicationListener<SipInviteEvent
             sipUtil.responseAck(event, content.toString());
             // sipUtil.responseAck(event,"");
 
-
-
         } catch (Exception e) {
-            log.info("sdp解析错误");
-            e.printStackTrace();
+            log.info("sdp解析错误", e);
         }
     }
 }
