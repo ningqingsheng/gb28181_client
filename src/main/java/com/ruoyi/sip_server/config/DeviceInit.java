@@ -54,6 +54,7 @@ public class DeviceInit {
      */
     public static Map<String, Device> ds;
     public static boolean isRegister = true;
+    private static Process ffmpegProcess;
 
 
     @PostConstruct
@@ -153,6 +154,7 @@ public class DeviceInit {
 
                     // 启动进程
                     Process process = processBuilder.start();
+                    ffmpegProcess = process;
 
                     // 读取FFmpeg输出
                     InputStream inputStream = process.getInputStream();
@@ -186,6 +188,11 @@ public class DeviceInit {
         // 关闭所有流
         if (zlMediaKitConfig.isReset()) {
             httpUtil.closeStreams(null, null, null, null, null, "1");
+        }
+        // 关闭ffmpeg推流
+        if (ffmpegProcess != null) {
+            log.info("关闭ffmpeg推流");
+            ffmpegProcess.destroy();
         }
     }
 
