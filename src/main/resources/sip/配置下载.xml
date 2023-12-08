@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="{encoding}" standalone="no"?>
+<Response>
+    <CmdType>ConfigDownload</CmdType>
+    <SN>{sn}</SN>
+    <DeviceID>{deviceId}</DeviceID>
+    <Result>OK</Result>
+    <BasicParam>
+        <DeviceID>{deviceId}</DeviceID>
+        <Name>{name}</Name>
+        <SIPServerID>{sipServerId}</SIPServerID>
+        <SIPServerIP>{sipServerIp}</SIPServerIP>
+        <SIPServerPort>{sipServerPort}</SIPServerPort>
+        <DomainName>{domainName}</DomainName>
+        <Expiration>{expiration}</Expiration>
+        <Password>{password}</Password>
+        <HeartBeatInterval>{heartBeatInterval}</HeartBeatInterval>
+        <HeartBeatCount>{heartBeatCount}</HeartBeatCount>
+    </BasicParam>
+</Response>

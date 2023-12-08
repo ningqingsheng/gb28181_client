@@ -92,14 +92,10 @@ public class DeviceInit {
 
         ZLMediaKit mediaKit = zlm.getDefaultZLMediaKit();
         if ("1".equals(mediaKit.getEnabled())) {
-            try {
-                System.err.println("等待五秒钟,等待流媒体重启完毕,开始拉流");
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             String ffmpegCommand = mediaKit.getFfmpegCommand();
             if (StringUtils.hasText(ffmpegCommand)) {
+                System.err.println("等待五秒钟,等待流媒体重启完毕,开始拉流");
+                ThreadUtil.sleep(5000);
                 ffmpegPush(ffmpegCommand);
             } else {
                 while (true) {

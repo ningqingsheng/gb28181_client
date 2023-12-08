@@ -2,6 +2,7 @@ package com.ruoyi.subscribe.execute_event;
 
 import com.ruoyi.delayed_task.DelayQueueManager;
 import com.ruoyi.domain.MyTest;
+import com.ruoyi.sip_server.config.DeviceInit;
 import com.ruoyi.sip_server.config.SipConfig;
 import com.ruoyi.sip_server.tools.SipAuthUtil;
 import com.ruoyi.subscribe.EventPublisher;
@@ -9,6 +10,7 @@ import com.ruoyi.subscribe.event.SipMessageEvent;
 import com.ruoyi.utils.SipCmdUtil;
 import com.ruoyi.utils.SipUtil;
 import com.ruoyi.utils.XMLUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.json.XML;
@@ -65,7 +67,8 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
         Request request = event.getRequest();
 
         try {
-            JSONObject msg = XML.toJSONObject(new String(request.getRawContent(), "GB2312"));
+            String SipXmlContent = new String(request.getRawContent(), "GB2312");
+            JSONObject msg = XML.toJSONObject(SipXmlContent);
             JSONObject json = XMLUtil.getJSONObject(msg, "Query");
             if (json == null) {
                 return;
@@ -83,6 +86,7 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
             if ("DeviceInfo".equalsIgnoreCase(cmd)) {
                 log.info("[{}]发送设备信息....", deviceId);
                 sipCmdUtil.sendDeviceInfo(event,deviceId,sn);
+                log.info("[{}]发送设备信息完成", deviceId);
                 new MyTest(deviceId, "发送设备信息");
 
             }
@@ -97,7 +101,18 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
             else if ("Catalog".equalsIgnoreCase(cmd)) {
                 log.info("[{}]发送通道信息....", deviceId);
                 sipCmdUtil.sendCatalog(event,deviceId,sn);
+                log.info("[{}]发送通道信息完成", deviceId);
                 new MyTest(deviceId, "发送通道信息");
+            }
+            // 下载配置
+            else if ("ConfigDownload".equals(cmd)) {
+                log.info("[{}]发送设备配置信息....", deviceId);
+                sipCmdUtil.sendDeviceConfig(event,deviceId,sn);
+                log.info("[{}]发送设备配置信息完成", deviceId);
+            }
+            // 打印不支持的指令
+            else {
+                log.error("未支持的指令{}\n{}", cmd, SipXmlContent);
             }
             // 响应设备
              sipUtil.response(event, null, Response.OK, null);

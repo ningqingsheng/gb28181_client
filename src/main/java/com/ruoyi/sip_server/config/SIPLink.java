@@ -5,6 +5,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.ruoyi.domain.Device;
 import com.ruoyi.domain.DeviceChannel;
 import com.ruoyi.domain.base.R;
+import com.ruoyi.sip_server.SipServer;
 import com.ruoyi.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -32,6 +33,8 @@ public class SIPLink {
     final static String catalog = ResourceUtil.readUtf8Str("sip/模拟通道.xml");
     // 录像查询
     final static String recordInfo = ResourceUtil.readUtf8Str("sip/模拟录像.xml");
+    // 配置下载
+    final static String configDownload = ResourceUtil.readUtf8Str("sip/配置下载.xml");
 
 
     /**
@@ -193,6 +196,27 @@ public class SIPLink {
         keepaliveXml.append("<Status>OK</Status>\r\n");
         keepaliveXml.append("</Notify>\r\n");
         return keepaliveXml.toString();
+    }
+
+
+    /**
+     * 获取设备配置
+     */
+    public static String getConfigDownload(Device device, Integer sn, SipConfig sipConfig) {
+        return configDownload
+                .replace("{encoding}", device.getCharset())
+                .replace("{sn}", sn.toString())
+                .replace("{deviceId}", device.getDeviceId())
+                .replace("{name}", device.getDeviceName())
+                .replace("{sipServerId}", sipConfig.getId())
+                .replace("{sipServerIp}", sipConfig.getIp())
+                .replace("{sipServerPort}", sipConfig.getPort().toString())
+                .replace("{domainName}", sipConfig.getDomain())
+                .replace("{expiration}", sipConfig.getExpiration().toString())
+                .replace("{password}", sipConfig.getPassword())
+                .replace("{heartBeatInterval}", sipConfig.getHeartBeatInterval().toString())
+                .replace("{heartBeatCount}", sipConfig.getHeartBeatCount().toString())
+                ;
     }
 
 }

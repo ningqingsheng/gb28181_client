@@ -69,6 +69,18 @@ public class SipConfig {
      * 注册间隔，毫秒
      */
     private Integer registerInterval = 500;
+    /**
+     * 注册有效期，秒
+     */
+    private Integer expiration = 3600;
+    /**
+     * 心跳周期，秒
+     */
+    private Integer heartBeatInterval = 60;
+    /**
+     * 最大心跳超时次数
+     */
+    private Integer heartBeatCount = 3;
 
 
     /**

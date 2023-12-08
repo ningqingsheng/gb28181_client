@@ -213,4 +213,25 @@ public class SipCmdUtil {
             log.error("", e);
         }
     }
+
+    /**
+     * 发送设备配置信息
+     * @param event
+     * @param deviceId
+     * @param sn
+     */
+    public void sendDeviceConfig(RequestEvent event, String deviceId, Integer sn) {
+        Device device = DeviceInit.ds.get(deviceId);
+        String content = SIPLink.getConfigDownload(device, sn, sipConfig);
+        CallIdHeader callIdHeader = udpSipProvider.getNewCallId();
+        String tm1 = UUID.fastUUID().toString(true);
+        String tm2 = UUID.fastUUID().toString(true);
+        Request request = null;
+        try {
+            request = sipUtil.createMessageRequest(device, content, tm1/*fromHeader.getTag()*/, "z9hG4bK-" + tm2, callIdHeader);
+            udpSipProvider.sendRequest(request);
+        } catch (Exception e) {
+            log.error("发送设备配置信息错误-设备对象: [{}], 请求对象: [{}]", device, request);
+        }
+    }
 }
