@@ -5,7 +5,6 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.ruoyi.domain.Device;
 import com.ruoyi.domain.DeviceChannel;
 import com.ruoyi.domain.base.R;
-import com.ruoyi.sip_server.SipServer;
 import com.ruoyi.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -212,7 +211,7 @@ public class SIPLink {
                 .replace("{sipServerIp}", sipConfig.getIp())
                 .replace("{sipServerPort}", sipConfig.getPort().toString())
                 .replace("{domainName}", sipConfig.getDomain())
-                .replace("{expiration}", sipConfig.getExpiration().toString())
+                .replace("{expiration}", sipConfig.getRegisterExpiration().toString())
                 .replace("{password}", sipConfig.getPassword())
                 .replace("{heartBeatInterval}", sipConfig.getHeartBeatInterval().toString())
                 .replace("{heartBeatCount}", sipConfig.getHeartBeatCount().toString())

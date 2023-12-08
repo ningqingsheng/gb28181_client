@@ -60,9 +60,7 @@ public class GB28181Controller {
             // 注册
             DeviceInit.ds.values().forEach(x -> {
                         register(x);
-                        // 3600秒后自动重新注册
-                        delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), 3600 * 1000, () -> register(x)));
-                        ThreadUtil.sleep(sipConfig.getRegisterInterval());
+                        ThreadUtil.sleep(sipConfig.getInitRegisterInterval());
                     }
             );
             DeviceInit.isRegister = true;
@@ -78,6 +76,8 @@ public class GB28181Controller {
 
     private void register(Device x) {
         eventPublisher.eventPush(new SipRegisterEvent(x));
+        // 自动重新注册
+        delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
         log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
     }
 

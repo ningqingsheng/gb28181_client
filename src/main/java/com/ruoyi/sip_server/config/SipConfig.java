@@ -66,13 +66,17 @@ public class SipConfig {
      */
     private String gbCodeBegin = "44130200022000000001";
     /**
-     * 注册间隔，毫秒
+     * 启动时批量注册间隔，毫秒
      */
-    private Integer registerInterval = 500;
+    private Integer initRegisterInterval = 500;
+    /**
+     * 注册间隔，秒
+     */
+    private Integer registerInterval = 60;
     /**
      * 注册有效期，秒
      */
-    private Integer expiration = 3600;
+    private Integer registerExpiration = 3600;
     /**
      * 心跳周期，秒
      */
