@@ -10,6 +10,7 @@ import com.ruoyi.subscribe.event.SipMessageEvent;
 import com.ruoyi.utils.SipCmdUtil;
 import com.ruoyi.utils.SipUtil;
 import com.ruoyi.utils.XMLUtil;
+import com.ruoyi.web.controller.gb28181.GB28181Controller;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -103,6 +104,9 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
                 sipCmdUtil.sendCatalog(event,deviceId,sn);
                 log.info("[{}]发送通道信息完成", deviceId);
                 new MyTest(deviceId, "发送通道信息");
+
+                log.info("{}发送通道信息完成，耗时{}ms", deviceId, (System.currentTimeMillis() - GB28181Controller.map.get(deviceId)));
+                GB28181Controller.map.remove(deviceId);
             }
             // 下载配置
             else if ("ConfigDownload".equals(cmd)) {

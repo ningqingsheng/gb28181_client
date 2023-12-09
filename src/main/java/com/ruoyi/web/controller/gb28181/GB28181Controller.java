@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 模拟国标
  */
@@ -49,6 +52,8 @@ public class GB28181Controller {
     @Autowired
     private DelayQueueManager delayQueueManager;
 
+    public static Map<String, Long> map = new ConcurrentHashMap<>();
+
 
     /**
      * 设备注册/注销
@@ -75,10 +80,18 @@ public class GB28181Controller {
     }
 
     private void register(Device x) {
+        Long l = map.get(x.getDeviceId());
+        if (l != null) {
+            log.info("{}上次注册未完成，暂停再次注册，上次注册在{}ms之前", x.getDeviceId(), System.currentTimeMillis() - l);
+            // 自动重新注册
+            delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
+            return;
+        }
+        log.info("{}开始注册", x.getDeviceId());
+        map.put(x.getDeviceId(), System.currentTimeMillis());
         eventPublisher.eventPush(new SipRegisterEvent(x));
         // 自动重新注册
         delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
-        log.info("{} 发起注册， 设备数 {}", x.getDeviceId(), DeviceInit.ds.keySet().size());
     }
 
 }
