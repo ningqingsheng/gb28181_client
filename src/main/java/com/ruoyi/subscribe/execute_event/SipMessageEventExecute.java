@@ -104,9 +104,6 @@ public class SipMessageEventExecute implements ApplicationListener<SipMessageEve
                 sipCmdUtil.sendCatalog(event,deviceId,sn);
                 log.info("[{}]发送通道信息完成", deviceId);
                 new MyTest(deviceId, "发送通道信息");
-
-                log.info("{}发送通道信息完成，耗时{}ms", deviceId, (System.currentTimeMillis() - GB28181Controller.map.get(deviceId)));
-                GB28181Controller.map.remove(deviceId);
             }
             // 下载配置
             else if ("ConfigDownload".equals(cmd)) {
