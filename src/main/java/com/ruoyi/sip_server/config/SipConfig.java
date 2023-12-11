@@ -141,6 +141,12 @@ public class SipConfig {
         properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "0");
         properties.setProperty("gov.nist.javax.sip.SERVER_LOG", "sip_server_log");
         properties.setProperty("gov.nist.javax.sip.DEBUG_LOG", "sip_debug_log");
+        properties.setProperty("gov.nist.javax.sip.TCP_POST_PARSING_THREAD_POOL_SIZE", "64");
+        properties.setProperty("javax.sip.AUTOMATIC_DIALOG_SUPPORT", "on");
+        properties.setProperty("gov.nist.javax.sip.DELIVER_RETRANSMITTED_ACK_TO_LISTENER", "true");
+        properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
+        properties.setProperty("gov.nist.javax.sip.MESSAGE_PROCESSOR_FACTORY", "gov.nist.javax.sip.stack.NioMessageProcessorFactory");
+        properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "2000");
         try {
             sipStack = sipFactory.createSipStack(properties);
             log.info("\n创建 SipStack");
