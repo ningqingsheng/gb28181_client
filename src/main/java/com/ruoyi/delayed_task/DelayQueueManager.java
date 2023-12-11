@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -85,6 +86,7 @@ public class DelayQueueManager implements CommandLineRunner {
                 try {
                     //执行任务
                     task.getExecute().execute();
+                    log.info("正在处理{}，当前活动线程数量{}，delayQueue={}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size());
                 } catch (Exception e) {
                     log.error("延时任务执行出错", e);
                 } finally {
