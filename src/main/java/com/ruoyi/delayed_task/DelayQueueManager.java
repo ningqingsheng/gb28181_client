@@ -1,5 +1,7 @@
 package com.ruoyi.delayed_task;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.json.JSONUtil;
 import com.ruoyi.domain.base.Prefix;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -87,6 +90,9 @@ public class DelayQueueManager implements CommandLineRunner {
                     //执行任务
                     task.getExecute().execute();
                     log.info("正在处理{}，当前活动线程数量{}，delayQueue={}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size());
+//                    log.info("正在处理{}，当前活动线程数量{}，delayQueueSize={}，delayQueue=\n{}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size(),
+//                            JSONUtil.toJsonPrettyStr(delayQueue.stream().map(delayTask -> delayTask.getId()+ "    " + LocalDateTimeUtil.of(delayTask.getExpire())).collect(Collectors.toList()))
+//                    );
                 } catch (Exception e) {
                     log.error("延时任务执行出错", e);
                 } finally {

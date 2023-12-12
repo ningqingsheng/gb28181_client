@@ -114,10 +114,12 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
             d.setRegister(true);
             // 存入缓存
             DeviceInit.ds.put(d.getDeviceId(), d);
-
             log.info("设备向平台:{} 注册成功!", deviceId);
+
             // 定时发送心跳
-            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+            if (!manager.isExistence(Prefix.keepalive, d.getDeviceId())) {
+                manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+            }
         } else {
             log.info("设备向平台:{} 注册失败!", deviceId);
             d.setRegister(false);
@@ -127,6 +129,8 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
     private void keepalive(Device d) {
         sipCmdUtil.sendKeepalive(d);
         log.info("发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
-        manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+        if (!manager.isExistence(Prefix.keepalive, d.getDeviceId())) {
+            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+        }
     }
 }

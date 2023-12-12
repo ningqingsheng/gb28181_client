@@ -57,7 +57,7 @@ public class GB28181Controller {
      */
     @ApiOperation("0注册/1注销")
     @PostMapping("cmd")
-    public R<String> cmd(int type) {
+    public synchronized R<String> cmd(int type) {
         if (type == 0) {
             // 注册
             DeviceInit.ds.values().forEach(x -> {
@@ -79,8 +79,10 @@ public class GB28181Controller {
     private void register(Device x) {
         log.info("{}开始注册", x.getDeviceId());
         eventPublisher.eventPush(new SipRegisterEvent(x));
-        // 自动重新注册
-        delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
+        if (!delayQueueManager.isExistence(Prefix.register, x.getDeviceId())) {
+            // 自动重新注册
+            delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
+        }
     }
 
 }
