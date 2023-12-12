@@ -52,14 +52,14 @@ public class SipKeepaliveEventExecute implements ApplicationListener<SipKeepaliv
     @Autowired
     private DelayQueueManager manager;
 
-    /**
-     * 心跳未响应次数
-     */
-    public static Map<String, Integer> keepalive = new ConcurrentHashMap<>();
-    /**
-     * 判断是否是心跳会议的响应
-     */
-    public static Map<String, String> keepaliveCallId = new ConcurrentHashMap<>();
+//    /**
+//     * 心跳未响应次数
+//     */
+//    public static Map<String, Integer> keepalive = new ConcurrentHashMap<>();
+//    /**
+//     * 判断是否是心跳会议的响应
+//     */
+//    public static Map<String, String> keepaliveCallId = new ConcurrentHashMap<>();
 
 
     @Override
@@ -67,36 +67,42 @@ public class SipKeepaliveEventExecute implements ApplicationListener<SipKeepaliv
     public void onApplicationEvent(SipKeepaliveEvent evt) {
         ResponseEvent event = evt.getEvt();
         Response response = event.getResponse();
-        CallIdHeader callIdHeader = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
-        String callId = callIdHeader.getCallId();
-
-        // 获取设备id
         String uri = response.getHeader(From.NAME).toString();
         String deviceId = uri.substring(uri.indexOf(":") + 1, uri.indexOf("@")).split(":")[1];
-        Device d = DeviceInit.ds.get(deviceId);
-        if (d == null) {
-            log.info("设备对象为空 {}", deviceId);
-            return;
-        }
+        log.info("收到心跳回复：{}", deviceId);
 
-        int statusCode = response.getStatusCode();
+//        ResponseEvent event = evt.getEvt();
+//        Response response = event.getResponse();
+//        CallIdHeader callIdHeader = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
+//        String callId = callIdHeader.getCallId();
+//
+//        // 获取设备id
+//        String uri = response.getHeader(From.NAME).toString();
+//        String deviceId = uri.substring(uri.indexOf(":") + 1, uri.indexOf("@")).split(":")[1];
+//        Device d = DeviceInit.ds.get(deviceId);
+//        if (d == null) {
+//            log.info("设备对象为空 {}", deviceId);
+//            return;
+//        }
 
-        if (statusCode == 200) {
-            // 删除次数累计
-            keepalive.remove(deviceId);
-            // 删除id
-            keepaliveCallId.remove(callId);
-        }
+//        int statusCode = response.getStatusCode();
+//
+//        if (statusCode == 200) {
+//            // 删除次数累计
+//            keepalive.remove(deviceId);
+//            // 删除id
+//            keepaliveCallId.remove(callId);
+//        }
 
-        // 注册状态继续发送心跳
-        if (d.isRegister()) {
-            // 定时发送心跳
-            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> {
-                sipCmdUtil.sendKeepalive(d);
-                log.info("注册状态发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
-                log.info("{} 未响应次数: {}", deviceId, keepalive.get(deviceId));
-            }));
-        }
+//        // 注册状态继续发送心跳
+//        if (d.isRegister()) {
+//            // 定时发送心跳
+//            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> {
+//                sipCmdUtil.sendKeepalive(d);
+//                log.info("注册状态发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
+//                log.info("{} 未响应次数: {}", deviceId, keepalive.get(deviceId));
+//            }));
+//        }
 
     }
 }

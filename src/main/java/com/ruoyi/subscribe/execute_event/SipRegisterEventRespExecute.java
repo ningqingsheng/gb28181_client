@@ -124,16 +124,18 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
             // 存入缓存
             DeviceInit.ds.put(d.getDeviceId(), d);
 
-            // 定时发送心跳
-            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> {
-                sipCmdUtil.sendKeepalive(d);
-                 log.info("发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
-            }));
             log.info("设备向平台:{} 注册成功!", deviceId);
-
+            // 定时发送心跳
+            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
         } else {
             log.info("设备向平台:{} 注册失败!", deviceId);
             d.setRegister(false);
         }
+    }
+
+    private void keepalive(Device d) {
+        sipCmdUtil.sendKeepalive(d);
+        log.info("发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
+        manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
     }
 }

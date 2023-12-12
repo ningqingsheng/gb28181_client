@@ -116,31 +116,31 @@ public class SipCmdUtil {
             String tm2 = UUID.fastUUID().toString(true);
             Request request = sipUtil.createKeetpaliveMessageRequest(d, context, "z9hG4bK-Keepalive-" + tm1, tm2, null, callIdHeader);
             udpSipProvider.sendRequest(request);
-            // log.info("发送心跳: \n{}", request);
-            // 存储心跳请求
-            String callId = callIdHeader.getCallId();
+//            // log.info("发送心跳: \n{}", request);
+//            // 存储心跳请求
+//            String callId = callIdHeader.getCallId();
 
-            // 不为空就行
-            SipKeepaliveEventExecute.keepaliveCallId.put(callId, "xxx");
+//            // 不为空就行
+//            SipKeepaliveEventExecute.keepaliveCallId.put(callId, "xxx");
 
-            // 没收到响应移除 callId
-            delayQueueManager.put(new DelayTask(5000L, () -> {
-                String cId = SipKeepaliveEventExecute.keepaliveCallId.get(callId);
-                if (StringUtils.hasText(cId)) {
-                    // 移除
-                    SipKeepaliveEventExecute.keepaliveCallId.remove(callId);
-                    // 同时增加一次
-                    Integer sum = SipKeepaliveEventExecute.keepalive.get(d.getDeviceId());
-                    SipKeepaliveEventExecute.keepalive.put(d.getDeviceId(), sum != null ? ++sum : 1);
-                    // 超过3次设置为离线
-                    if (d.isRegister() && sum != null && sum >= 3) {
-                        Device device = DeviceInit.ds.get(d.getDeviceId());
-                        device.setRegister(false);
-                        DeviceInit.ds.put(d.getDeviceId(), device);
-                    }
-
-                }
-            }));
+//            // 没收到响应移除 callId
+//            delayQueueManager.put(new DelayTask(5000L, () -> {
+//                String cId = SipKeepaliveEventExecute.keepaliveCallId.get(callId);
+//                if (StringUtils.hasText(cId)) {
+//                    // 移除
+//                    SipKeepaliveEventExecute.keepaliveCallId.remove(callId);
+//                    // 同时增加一次
+//                    Integer sum = SipKeepaliveEventExecute.keepalive.get(d.getDeviceId());
+//                    SipKeepaliveEventExecute.keepalive.put(d.getDeviceId(), sum != null ? ++sum : 1);
+//                    // 超过3次设置为离线
+//                    if (d.isRegister() && sum != null && sum >= 3) {
+//                        Device device = DeviceInit.ds.get(d.getDeviceId());
+//                        device.setRegister(false);
+//                        DeviceInit.ds.put(d.getDeviceId(), device);
+//                    }
+//
+//                }
+//            }));
         } catch (Exception e) {
             log.error("", e);
         }
