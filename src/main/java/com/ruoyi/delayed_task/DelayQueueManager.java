@@ -85,6 +85,8 @@ public class DelayQueueManager implements CommandLineRunner {
     private void executeThread() {
         while (true) {
             DelayTask task = delayQueue.take();
+            // 删除执行过的任务
+            saveDelay.remove(task.getId());
             my.execute(() -> {
                 try {
                     //执行任务
@@ -95,12 +97,8 @@ public class DelayQueueManager implements CommandLineRunner {
 //                    );
                 } catch (Exception e) {
                     log.error("延时任务执行出错", e);
-                } finally {
-                    // 删除执行过的任务
-                    saveDelay.remove(task.getId());
                 }
             });
         }
     }
-
 }
