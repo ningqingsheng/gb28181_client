@@ -105,19 +105,10 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
         if (statusCode == 401) {
             //携带验证信息
             WWWAuthenticateHeader authorizationHeader = (WWWAuthenticateHeader) response.getHeader(WWWAuthenticateHeader.NAME);
-            if (!d.isRegister()) {
-                log.info("{} 向平台发送带认证信息的注册消息!", deviceId);
-                // 发送注册
-                sipCmdUtil.sendRegister(d, authorizationHeader, callId);
-                new MyTest(d.getDeviceId(), "发送注册请求-带认证信息");
-
-            } else {
-                // 此处还是注册, 注销另外接口, 不然注销一部分注册一部分,在执行会出现相反
-                log.info("{} 向平台发送带认证信息的注销消息!", deviceId);
-                // sipCmdUtil.unRegister(sipPlatform, device, callId, authorizationHeader, null);
-                sipCmdUtil.sendRegister(d, authorizationHeader, callId);
-
-            }
+            log.info("{} 向平台发送带认证信息的注册消息!", deviceId);
+            // 发送注册
+            sipCmdUtil.sendRegister(d, authorizationHeader, callId);
+            new MyTest(d.getDeviceId(), "发送注册请求-带认证信息");
         } else if (statusCode == 200) {
             d.setIsOnline("1");
             d.setRegister(true);
