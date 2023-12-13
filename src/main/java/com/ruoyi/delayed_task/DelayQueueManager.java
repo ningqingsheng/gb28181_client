@@ -91,10 +91,17 @@ public class DelayQueueManager implements CommandLineRunner {
                 try {
                     //执行任务
                     task.getExecute().execute();
-                    log.info("正在处理{}，当前活动线程数量{}，delayQueue={}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size());
-//                    log.info("正在处理{}，当前活动线程数量{}，delayQueueSize={}，delayQueue=\n{}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size(),
-//                            JSONUtil.toJsonPrettyStr(delayQueue.stream().map(delayTask -> delayTask.getId()+ "    " + LocalDateTimeUtil.of(delayTask.getExpire())).collect(Collectors.toList()))
-//                    );
+//                    log.info("正在处理{}，当前活动线程数量{}，delayQueue={}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size());
+                    log.info("正在处理{}，当前活动线程数量{}，delayQueueSize={}，重复taskId={}", task.getId(), ((ThreadPoolTaskExecutor) my).getActiveCount(), delayQueue.size(),
+                            delayQueue
+                                    .stream()
+                                    .collect(Collectors.groupingBy(DelayTask::getId))
+                                    .values()
+                                    .stream()
+                                    .filter(tasks -> tasks.size() > 1)
+                                    .map(tasks -> tasks.get(0).getId() + "->" + tasks.size())
+                                    .collect(Collectors.toList())
+                    );
                 } catch (Exception e) {
                     log.error("延时任务执行出错", e);
                 }

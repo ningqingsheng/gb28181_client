@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 模拟国标
@@ -76,8 +77,12 @@ public class GB28181Controller {
 
     }
 
+    private final Map<String, AtomicInteger> registerMap = new ConcurrentHashMap<>();
     private void register(Device x) {
-        log.info("{}开始注册", x.getDeviceId());
+        AtomicInteger atomicInteger = registerMap.getOrDefault(x.getDeviceId(), new AtomicInteger(0));
+        int i = atomicInteger.incrementAndGet();
+        registerMap.put(x.getDeviceId(), atomicInteger);
+        log.info("{}开始第{}次注册", x.getDeviceId(), i);
         eventPublisher.eventPush(new SipRegisterEvent(x));
         if (!delayQueueManager.isExistence(Prefix.register, x.getDeviceId())) {
             // 自动重新注册
