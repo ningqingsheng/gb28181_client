@@ -140,7 +140,8 @@ public class SipUtil {
      */
     public ServerTransaction getServerTransaction(RequestEvent evt) {
         Request request = evt.getRequest();
-        ServerTransaction serverTransaction = evt.getServerTransaction();
+//        ServerTransaction serverTransaction = evt.getServerTransaction();
+        ServerTransaction serverTransaction = (ServerTransaction) ((SIPRequest) request).getTransaction();
 
         if (serverTransaction == null) {
             try {
