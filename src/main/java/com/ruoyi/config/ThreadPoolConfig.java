@@ -26,7 +26,7 @@ public class ThreadPoolConfig {
     /**
      * 核心线程数
      */
-    private  Integer corePoolSize = 1;
+    private  Integer corePoolSize = 5000;
     /**
      * 最大线程数
      */

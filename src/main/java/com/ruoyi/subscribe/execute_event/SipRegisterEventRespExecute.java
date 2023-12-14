@@ -15,6 +15,7 @@ import gov.nist.javax.sip.header.From;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +59,6 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
     @Override
     @Async("my")
     public void onApplicationEvent(SipRegisterRespEvent evt) {
-
         ResponseEvent event = evt.getEvt();
         Response response = event.getResponse();
         ViaHeader via = (ViaHeader) response.getHeader("Via");
@@ -83,9 +83,7 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
                 event.getDialog().delete();
             }
         }
-
     }
-
 
     private void sendMsg(ResponseEvent evt) {
         Response response = evt.getResponse();

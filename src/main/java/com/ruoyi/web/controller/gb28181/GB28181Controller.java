@@ -18,12 +18,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -52,6 +51,8 @@ public class GB28181Controller {
     private SipConfig sipConfig;
     @Autowired
     private DelayQueueManager delayQueueManager;
+    @Autowired
+    private TaskExecutor my;
 
     /**
      * 设备注册/注销
@@ -61,11 +62,7 @@ public class GB28181Controller {
     public synchronized R<String> cmd(int type) {
         if (type == 0) {
             // 注册
-            DeviceInit.ds.values().forEach(x -> {
-                        register(x);
-                        ThreadUtil.sleep(sipConfig.getInitRegisterInterval());
-                    }
-            );
+            register();
             DeviceInit.isRegister = true;
             return R.success("注册中");
         } else {
@@ -77,16 +74,17 @@ public class GB28181Controller {
 
     }
 
-    private final Map<String, AtomicInteger> registerMap = new ConcurrentHashMap<>();
-    private void register(Device x) {
-        AtomicInteger atomicInteger = registerMap.getOrDefault(x.getDeviceId(), new AtomicInteger(0));
-        int i = atomicInteger.incrementAndGet();
-        registerMap.put(x.getDeviceId(), atomicInteger);
-        log.info("{}开始第{}次注册", x.getDeviceId(), i);
-        eventPublisher.eventPush(new SipRegisterEvent(x));
-        if (!delayQueueManager.isExistence(Prefix.register, x.getDeviceId())) {
+    AtomicInteger registerCount = new AtomicInteger(0);
+
+    private synchronized void register() {
+        log.info("开始第{}次注册", registerCount.incrementAndGet());
+        DeviceInit.ds.values().forEach(x -> {
+            my.execute(() -> eventPublisher.eventPush(new SipRegisterEvent(x)));
+            ThreadUtil.sleep(sipConfig.getInitRegisterInterval());
+        });
+        if (!delayQueueManager.isExistence(Prefix.register, "all")) {
             // 自动重新注册
-            delayQueueManager.put(new DelayTask(Prefix.register, x.getDeviceId(), sipConfig.getRegisterInterval() * 1000, () -> register(x)));
+            delayQueueManager.put(new DelayTask(Prefix.register, "all", sipConfig.getRegisterInterval() * 1000, this::register));
         }
     }
 
