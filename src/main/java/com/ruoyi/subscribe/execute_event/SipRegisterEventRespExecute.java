@@ -55,7 +55,6 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
     private DelayQueueManager manager;
 
 
-
     @Override
     @Async("my")
     public void onApplicationEvent(SipRegisterRespEvent evt) {
@@ -116,7 +115,7 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
 
             // 定时发送心跳
             if (!manager.isExistence(Prefix.keepalive, d.getDeviceId())) {
-                manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+                manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), sipConfig.getHeartBeatInterval() * 1000, () -> keepalive(d)));
             }
         } else {
             log.info("设备向平台:{} 注册失败!", deviceId);
@@ -128,7 +127,7 @@ public class SipRegisterEventRespExecute implements ApplicationListener<SipRegis
         sipCmdUtil.sendKeepalive(d);
         log.info("发送心跳完成 {} {}", d.getDeviceId(), d.getDeviceName());
         if (!manager.isExistence(Prefix.keepalive, d.getDeviceId())) {
-            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), Long.parseLong(sipConfig.getKeepaliveTimeout()), () -> keepalive(d)));
+            manager.put(new DelayTask(Prefix.keepalive, d.getDeviceId(), sipConfig.getHeartBeatInterval() * 1000, () -> keepalive(d)));
         }
     }
 }

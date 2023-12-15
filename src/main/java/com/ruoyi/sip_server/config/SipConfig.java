@@ -99,12 +99,6 @@ public class SipConfig {
     private Integer sipDevicePort;
 
 
-    /**
-     * 发送心跳间隔
-     */
-    private String keepaliveTimeout = "60000";
-
-
     private SipFactory sipFactory;
 
     private SipStack sipStack;
