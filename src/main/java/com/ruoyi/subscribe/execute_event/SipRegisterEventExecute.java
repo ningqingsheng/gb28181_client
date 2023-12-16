@@ -50,6 +50,7 @@ public class SipRegisterEventExecute implements ApplicationListener<SipRegisterE
             sipCmdUtil.logOut(evt.getD());
         }else {
             // 发送注册
+            log.info("开始注册{}", evt.getD().getDeviceId());
             sipCmdUtil.sendRegister(evt.getD(),null,null);
             new MyTest(evt.getD().getDeviceId(), "发送注册请求");
 
