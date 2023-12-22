@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TransferQueue;
 
 /**
  * 流媒体服务器配置类
@@ -314,7 +315,7 @@ public class ZLMediaKitHttpUtil {
      * @return
      */
     public void closeStreams(ZLMediaKit zlm, String schema, String vhost, String app, String stream, String force) {
-        if (zlm==null){
+        if (zlm == null) {
             zlm = zlMediaKitConfig.getDefaultZLMediaKit();
         }
         try {
@@ -393,7 +394,7 @@ public class ZLMediaKitHttpUtil {
      * @return
      */
     public boolean restart(ZLMediaKit zlm) {
-        if (zlm==null){
+        if (zlm == null) {
             zlm = zlMediaKitConfig.getDefaultZLMediaKit();
         }
         String msg = "";
@@ -420,28 +421,69 @@ public class ZLMediaKitHttpUtil {
     }
 
     /**
+     * 创建拉流代理
+     *
+     * @param zlm
+     * @return
+     */
+    public boolean addStreamProxy(ZLMediaKit zlm, String app, String stream) {
+        try {
+            HashMap<String, Object> map = new HashMap<>();
+            // 设置认证信息
+            map.put("secret", zlm.getApiSecret());
+            map.put("vhost", "__defaultVhost__");
+            map.put("app", app);
+            map.put("stream", stream);
+            map.put("url", zlm.getPullStreamUrl());
+            String url = String.format("%s%s:%s/index/api/addStreamProxy", isHttps(zlm.isHttps()), zlm.getHttpIp(), zlm.getHttpPort());
+            String result = HttpUtil.post(url, map);
+            JSONObject object = JSONObject.parseObject(result);
+            int code = object.getIntValue("code");
+            String msg = object.getString("msg");
+            if (code == 0) {
+                log.info("添加拉流代理成功，app={}，stream={}", app, stream);
+                return true;
+            } else if ("This stream already exists".equals(msg)) {
+                log.info("This stream already exists. app={} stream={}", app, stream);
+                return true;
+            }
+            log.error("添加拉流代理失败:[{}][{}][{}]", code, zlm.getGeneralMediaServerId(), msg);
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return false;
+    }
+
+    /**
      * 发送RTP流
-     * @param zlm 流媒体对象
-     * @param ssrc ssrc
-     * @param ip 目标ip
-     * @param port 本地端口
+     *
+     * @param zlm    流媒体对象
+     * @param ssrc   ssrc
+     * @param ip     目标ip
+     * @param port   本地端口
      * @param toPort 目标端口
-     * @param isUdp 是否是UDP
+     * @param isUdp  是否是UDP
      * @return
      */
     public boolean pushStreamGB(ZLMediaKit zlm, String ssrc, String ip, Integer port, String toPort, boolean isUdp) {
-        String msg = "";
+        // 推流之前先创建拉流代理
+        String app = "rtpProxy";
+        boolean b = addStreamProxy(zlm, app, ssrc);
+        if (!b) {
+            return false;
+        }
+
         try {
             HashMap<String, Object> map = new HashMap<>();
             // 设置认证信息
             map.put("secret", zlm.getApiSecret());
             map.put("vhost", "__defaultVhost__");
             // 应用名
-            // map.put("app", "rtp");
-            map.put("app", zlm.getPullStreamApp());
+//            map.put("app", zlm.getPullStreamApp());
+            map.put("app", app);
             // 流名称
-            // map.put("stream", String.format("%s_%s", deviceId, channelId));
-            map.put("stream", zlm.getPullStreamId());
+//            map.put("stream", zlm.getPullStreamId());
+            map.put("stream", ssrc);
             // rtp推流的ssrc，ssrc不同时，可以推流到多个上级服务器
             map.put("ssrc", ssrc);
             // 目标流媒体ip
@@ -451,10 +493,9 @@ public class ZLMediaKitHttpUtil {
             // 是否UDP
             map.put("is_udp", isUdp ? 1 : 0);
             // 本机推流端口, 不传随机端口
-             map.put("src_port", port);
+            map.put("src_port", port);
             // 是否推送本地MP4录像，该参数非必选参数
             // map.put("from_mp4", "");
-
 
 
             // 请求地址
@@ -462,12 +503,12 @@ public class ZLMediaKitHttpUtil {
             String result = HttpUtil.post(url, map);
             JSONObject object = JSONObject.parseObject(result);
             int code = object.getIntValue("code");
-            msg = object.getString("msg");
+            String msg = object.getString("msg");
             if (code == 0) {
                 log.info("\n推流中....");
                 return true;
             }
-            log.error("\n国标推流执行错误:[{}][{}][{}]", code,zlm.getGeneralMediaServerId(), msg);
+            log.error("\n国标推流执行错误:[{}][{}][{}]", code, zlm.getGeneralMediaServerId(), msg);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("\n国标推流执行异常:[{}][{}]", zlm.getGeneralMediaServerId(), e);
@@ -477,7 +518,8 @@ public class ZLMediaKitHttpUtil {
 
     /**
      * 关闭推流
-     * @param zlm 流媒体对象
+     *
+     * @param zlm  流媒体对象
      * @param ssrc ssrc
      * @return
      */
@@ -508,7 +550,7 @@ public class ZLMediaKitHttpUtil {
                 log.info("\n停止推流: ", zlm.getGeneralMediaServerId());
                 return true;
             }
-            log.error("\n停止错误: [{}]",  msg);
+            log.error("\n停止错误: [{}]", msg);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("\n推流异常:{}", e);
@@ -517,15 +559,14 @@ public class ZLMediaKitHttpUtil {
     }
 
 
-
     /**
      * 添加拉流代理
      *
-     * @param zlm   流媒体服务器对象
+     * @param zlm 流媒体服务器对象
      * @return
      */
     public boolean playPullStream(ZLMediaKit zlm) {
-        if (zlm==null){
+        if (zlm == null) {
             zlm = zlMediaKitConfig.getDefaultZLMediaKit();
         }
         String msg = "";
@@ -541,7 +582,7 @@ public class ZLMediaKitHttpUtil {
             // 流应用名
             setZLMConfig(map, "app", zlm.getPullStreamApp());
             // 流id
-            setZLMConfig(map, "stream",  zlm.getPullStreamId());
+            setZLMConfig(map, "stream", zlm.getPullStreamId());
             // 拉流地址
             setZLMConfig(map, "url", zlm.getPullStreamUrl());
             // 拉流方式[rtsp拉流时，拉流方式，0：tcp，1：udp，2：组播]
@@ -577,6 +618,9 @@ public class ZLMediaKitHttpUtil {
             msg = object.getString("msg");
             if (code == 0) {
                 log.info("\n拉流成功: 流媒体: {}, 流id:{}", zlm.getGeneralMediaServerId(), zlm.getPullStreamId());
+                return true;
+            } else if ("This stream already exists".equals(msg)) {
+                log.info("This stream already exists. app={} stream={}", zlm.getPullStreamApp(), zlm.getPullStreamId());
                 return true;
             }
             log.error("\n拉流执行错误:[{}][{}][{}]", zlm.getGeneralMediaServerId(), zlm.getPullStreamId(), msg);
